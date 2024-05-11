@@ -21,16 +21,16 @@ Config.param_regularizers = {
 
 CAMERA_INIT_LR = 2e-3
 CAMERA_END_LR = 1e-4
-Config.use_perturbed_cameras = True
+Config.use_perturbed_cameras = False
 
 Config.focal_length_var_loss_mult = 0.0
 Config.principal_point_var_loss_mult = 0.0
 Config.radial_distortion_var_loss_mult = 0.0
 
-Config.camera_perturb_sigma_look_at = 0.1
-Config.camera_perturb_sigma_position = 0.1
-Config.camera_perturb_sigma_dolly_z = 0.2
-Config.camera_perturb_sigma_focal_length = 0.1
+Config.camera_perturb_sigma_look_at = 0.0
+Config.camera_perturb_sigma_position = 0.0
+Config.camera_perturb_sigma_dolly_z = 0.0
+Config.camera_perturb_sigma_focal_length = 0.0
 Config.camera_perturb_intrinsic_single = False
 
 USE_PRECONDITION = True

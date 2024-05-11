@@ -615,11 +615,11 @@ def scale_grids_by_coarse_to_fine(
     A gradient transformation object comprised of chained mask transforms that
     apply the coarse-to-fine scaling.
   """
-  if (
-      model.grid_representation is None
-      or model.grid_representation.lower() not in ['ngp', 'hash']
-  ):
-    raise ValueError('Only HashEncoding supports with coarse to fine.')
+  #if (
+  #    model.grid_representation is None
+  #    or model.grid_representation.lower() not in ['ngp', 'hash']
+  #):
+  #  raise ValueError('Only HashEncoding supports with coarse to fine.')
 
   target_resolution_fn = configs.parse_call_def(
       config.grid_c2f_resolution_schedule_def

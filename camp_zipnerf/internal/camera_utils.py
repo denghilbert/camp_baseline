@@ -1686,7 +1686,8 @@ def perturb_cameras(
       cameras.position, cameras.optical_axis, jnp.zeros_like(cameras.position)
   )
   rng, key = random.split(rng)
-  perturb_dir = math.normalize(random.normal(key, camera_positions.shape))
+  #perturb_dir = math.normalize(random.normal(key, camera_positions.shape))
+  perturb_dir = spin_math.normalize(random.normal(key, camera_positions.shape))
   look_at_positions_perturbed = np.array(
       sigma_look_at * perturb_dir + look_at_positions
   )

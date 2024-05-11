@@ -40,6 +40,7 @@ import jax
 import numpy as np
 import pycolmap
 
+import torch
 
 gin.config.external_configurable(
     camera_utils.transform_poses_pca, module='camera_utils'
@@ -636,6 +637,44 @@ class Dataset(metaclass=abc.ABCMeta):
         self.pixtocam_ndc,
         z_range,
     )
+    so3_noise = torch.randn((len(self.cameras[0]), 3)) * 0.25
+    t_noise = (torch.randn((len(self.cameras[0]), 3)) * 0.25).numpy()
+    def so3_to_SO3(w): # [...,3]
+        wx = skew_symmetric(w)
+        theta = w.norm(dim=-1)[...,None,None]
+        I = torch.eye(3,device=w.device,dtype=torch.float32)
+        A = taylor_A(theta)
+        B = taylor_B(theta)
+        R = I+A*wx+B*wx@wx
+        return R
+    def skew_symmetric(w):
+        w0,w1,w2 = w.unbind(dim=-1)
+        O = torch.zeros_like(w0)
+        wx = torch.stack([torch.stack([O,-w2,w1],dim=-1),
+                          torch.stack([w2,O,-w0],dim=-1),
+                          torch.stack([-w1,w0,O],dim=-1)],dim=-2)
+        return wx
+    def taylor_A(x,nth=10):
+        # taylor expansion of sin(x)/x
+        ans = torch.zeros_like(x)
+        denom = 1.
+        for i in range(nth+1):
+            if i>0: denom *= (2*i)*(2*i+1)
+            ans = ans+(-1)**i*x**(2*i)/denom
+        return ans
+    def taylor_B(x,nth=10):
+        # taylor expansion of (1-cos(x))/x**2
+        ans = torch.zeros_like(x)
+        denom = 1.
+        for i in range(nth+1):
+            denom *= (2*i+1)*(2*i+2)
+            ans = ans+(-1)**i*x**(2*i)/denom
+        return ans
+    so3 = so3_to_SO3(so3_noise).cpu().detach().numpy()
+
+    for i in range(len(self.cameras[1])):
+        self.cameras[1][i][:3, :3] = so3[i] @ self.cameras[1][i][:3, :3]
+        self.cameras[1][i][:3, -1] = t_noise[i] + self.cameras[1][i][:3, -1]
 
     # Cache the partial conversion function.
     self.jax_camera_from_tuple_fn = functools.partial(
