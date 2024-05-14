@@ -42,6 +42,7 @@ import jaxcam
 import numpy as np
 
 TIME_PRECISION = 1000  # Internally represent integer times in milliseconds.
+flax.config.update('flax_use_orbax_checkpointing', False)
 
 
 def plot_camera_metrics(
